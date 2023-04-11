@@ -1,0 +1,603 @@
+awal tari2a
+
+
+import {FlatList} from 'react-native';
+import {CATEGORIES} from './../data/dummy-data';
+import CategoryGridTile from '../components/CategoryGridTile';
+
+// [ {} ,{} ]
+
+const CategoriesScreen = ({navigation}) => {
+  function renderCategoryItem(itemData) {
+    const pressHandler = () => {
+      navigation.navigate('MealsOverview');
+    };
+
+    return (
+      <CategoryGridTile
+        title={itemData.item.title}
+        color={itemData.item.color}
+        onPress={pressHandler}
+      />
+    );
+  }
+
+  return (
+    <FlatList
+      data={CATEGORIES}
+      keyExtractor={item => item.id}
+      renderItem={renderCategoryItem}
+      numColumns={2}
+    />
+  );
+};
+
+export default CategoriesScreen;
+
+
+
+
+tene tari2a 
+
+
+
+CategoriesScreen.js:
+
+function renderCategoryItem(itemData, navigation) { 
+  function pressHandler() {
+   navigation.navigate('MealsOverview');
+  }
+ 
+  return (
+    <CategoryGridTile 
+    title={itemData.item.title} 
+    color={itemData.item.color} 
+    onPress={pressHandler} />
+  );
+};
+ 
+function CategoriesScreen({ navigation }) {
+  return (
+    <FlatList
+    data={CATEGORIES}
+    key={(item) => item.id} 
+    renderItem={(itemData) => renderCategoryItem(itemData, navigation)}
+    numColumns={2}
+    />
+  );
+};
+
+
+
+
+el app.js
+
+
+
+
+import {StyleSheet} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import CategoriesScreen from './screens/CategoriesScreen';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import MealsOverviewScreen from './screens/MealsOverviewScreen';
+
+const Stack = createNativeStackNavigator();
+
+const App = () => {
+  return (
+    <>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="MealsCategories" component={CategoriesScreen} />
+          <Stack.Screen name="MealsOverview" component={MealsOverviewScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#24180f',
+  },
+});
+
+export default App;
+
+
+==================================================================
+                          1meth
+note about navigation
+
+fina nmare2 lal child kelmet navigation bi {navigation} ka props
+w nerja3 nesta3mela hik
+      navigation.navigate('MealsOverview');
+w mafia la imoport wala shi yaane...w fina nmare2a men 5ilel el
+props jawa jawa jawa....
+
+ 
+
+                     2meth
+
+fina degre men el child li jawa jawa w bala ma nmare2 prop w
+ bala el nseted
+
+import {useNavigation} from '@react-navigation/native';
+  const navigation = useNavigation();
+navigation.navigate('MealsOverview');
+
+===========================================================
+how to extract paramters ?
+
+Route prop reference
+Navigation prop reference
+
+
+                 parent: 
+
+const CategoriesScreen = ({navigation}) => {
+  function renderCategoryItem(itemData) {
+    const pressHandler = () => {
+      navigation.navigate('MealsOverview', {
+        categoryId: itemData.item.id,
+      });
+    };
+  }}.........
+
+
+                    child:
+
+MealsOverviewScreen.js
+
+const MealsOverviewScreen = ({route}) => {}
+
+  const catId = route.params.categoryId;
+
+
+w kamennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+fi hook nesta3mlo metel el useNavigation
+
+esmo useRoute()
+
+
+const route = useRoute();
+  const catId = route.params.categoryId;
+
+
+
+
+=========================================================
+
+
+<>
+      <StatusBar />
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="MealsCategories"
+            component={CategoriesScreen}
+            options={{
+              title: 'All Categories',
+             headerStyle: {backgroundColor: '#351401'},
+             headerTintColor: 'white',
+             contentStyle: {backgroundColor: '#3f2f25'},
+            }}
+          />
+          <Stack.Screen name="MealsOverview" component={MealsOverviewScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
+
+
+======          or       ===============
+
+
+<>
+      <StatusBar />
+      <NavigationContainer>
+        {/* for all the screens */}
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {backgroundColor: '#351401'},
+            headerTintColor: 'white',
+            contentStyle: {backgroundColor: '#3f2f25'},
+          }}>
+          <Stack.Screen
+            name="MealsCategories"
+            component={CategoriesScreen}
+            options={{
+              title: 'All Categories',
+              // for one screen
+              // he lal toolbar aw li hye header
+              // headerStyle: {backgroundColor: '#351401'},
+              // he lal 5at
+              // headerTintColor: 'white',
+              // he lal saf7a kella
+              // contentStyle: {backgroundColor: '#3f2f25'},
+            }}
+          />
+          <Stack.Screen name="MealsOverview" component={MealsOverviewScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
+
+
+=============================================================================    
+
+ Setting Navigation Options Dynamically
+
+
+                             1meth from the parent screen
+
+
+
+                               <Stack.Screen
+            name="MealsOverview"
+            component={MealsOverviewScreen}
+            //setting options dynamically w lezem nkamel baad bi filter aw find..bas nehna lah nkmela
+            //  aw lah na3mela 3a tene page ahsan. yaane fi alternative
+            // options={({route, navigation}) => {
+            //   const catId = route.params.categoryId;
+            //   return {
+            //     title: catId,
+            //   };
+            // }}
+          />
+
+
+
+
+
+          2meth from the child
+
+
+          
+  // it will run at the same time and before the component finish execution
+  useLayoutEffect(() => {
+    const categoryTitle = CATEGORIES.find(
+      category => category.id === catId,
+    ).title;
+
+    navigation.setOptions({
+      title: categoryTitle,
+    });
+  }, [catId, navigation]);
+
+
+
+=====================================================================
+
+
+             106. Adding Header Buttons
+
+      <Stack.Screen
+            name="MealDetail"
+            component={MealDetailScreen}
+            options={{
+          // headerRight lezem traje3 component fn
+              headerRight: () => {
+                 return <Button title="Tap me!" onPress={} />;
+             },
+            }}
+          />
+
+orrrrrrrrrrrrrrr
+                              
+
+
+                               useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => {
+        return <Button title="Tap me" onPress={headerButtonPressHandler} />;
+      },
+    });
+  }, [navigator, headerButtonPressHandler]);
+
+
+
+  =============================================================
+
+  
+FIX for everyone facing react-native-reanimated 2.3.1 bug.
+81 upvotes
+Vittorio · Lecture 108 · 1 year ago
+Following the reanimated2 documentation , the problem is fixed adding the  react-native-reanimated/plugin   to babel.config.js  in root directory. After this, if the error persists, launch expo r -c for deploy the app with empty cache. This will probably fix the issue.
+
+
+
+-- IMPORTANT --
+
+The react-native-reanimated/plugin has to be the last of every other plugins you may have installed in babel configuration.
+
+=======================================================================
+
+ 
+                          Drawer  Navigation
+
+import 'react-native-gesture-handler';
+import {NavigationContainer} from '@react-navigation/native';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import WelcomeScreen from './screen/WelcomeScreen';
+import UserScreen from './screen/UserScreen';
+const Drawer = createDrawerNavigator();
+
+
+      <NavigationContainer>
+      <Drawer.Navigator>
+        <Drawer.Screen
+          name="Welcome"
+          component={WelcomeScreen}
+          options={{
+            headerStyle: {backgroundColor: '#3c0a6b'},
+            headerTintColor: 'white',
+            drawerLabel: 'Welcome Screen',
+            drawerActiveBackgroundColor: '#f0e1ff',
+            drawerActiveTintColor: '#3c0a6b',
+            drawerStyle: {
+              backgroundColor: '#cccccc',
+            },
+          }}
+        />
+        <Drawer.Screen name="User" component={UserScreen} />
+      </Drawer.Navigator>
+    </NavigationContainer>
+
+
+
+
+========================================================================
+
+function App1() {
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator
+        screenOptions={{
+          headerStyle: {backgroundColor: '#3c0a6b'},
+          headerTintColor: 'white',
+          drawerActiveBackgroundColor: '#f0e1ff',
+          drawerActiveTintColor: '#3c0a6b',
+          drawerStyle: {
+            backgroundColor: '#cccccc',
+          },
+        }}>
+        <Drawer.Screen
+          name="Welcome"
+          component={WelcomeScreen}
+          options={{
+            drawerLabel: 'Welcome Screen',
+            // drawerActiveBackgroundColor: '#f0e1ff',
+            // drawerActiveTintColor: '#3c0a6b',
+            // drawerStyle: {
+            //   backgroundColor: '#cccccc',
+            // },
+          }}
+        />
+        <Drawer.Screen name="User" component={UserScreen} />
+      </Drawer.Navigator>
+    </NavigationContainer>
+  );
+}
+
+=========================================================================
+
+
+ <NavigationContainer>
+      <Drawer.Navigator
+        screenOptions={{
+          headerStyle: {backgroundColor: '#3c0a6b'},
+          headerTintColor: 'white',
+          drawerActiveBackgroundColor: '#f0e1ff',
+          drawerActiveTintColor: '#3c0a6b',
+          //   drawerStyle: {
+          //     backgroundColor: '#cccccc',
+          //   },
+        }}>
+        <Drawer.Screen
+          name="Welcome"
+          component={WelcomeScreen}
+          options={{
+            drawerLabel: 'Welcome Screen',
+            drawerIcon: ({color, size}) => (
+              <Entypo name="home" size={size} color={color} />
+            ),
+            // drawerActiveBackgroundColor: '#f0e1ff',
+            // drawerActiveTintColor: '#3c0a6b',
+            // drawerStyle: {
+            //   backgroundColor: '#cccccc',
+            // },
+          }}
+        />
+        <Drawer.Screen
+          name="User"
+          component={UserScreen}
+          options={{
+            drawerIcon: ({color, size}) => (
+              <Ionicons name="person" color={color} size={size} />
+            ),
+          }}
+        />
+      </Drawer.Navigator>
+    </NavigationContainer>
+
+
+
+
+//                   open and close the drawer
+
+
+
+
+
+    import {View, Text, Button, StyleSheet} from 'react-native';
+
+function UserScreen({navigation}) {
+  function openDrawerHandler() {
+    navigation.toggleDrawer();
+  }
+
+  return (
+    <View style={styles.rootContainer}>
+      <Button title="Open Drawer" onPress={openDrawerHandler} />
+    </View>
+  );
+}
+
+export default UserScreen;
+
+==========================================================================
+
+                          normal stack screen without drawer or tab or ...
+   
+   <>
+      <StatusBar />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {backgroundColor: '#351401'},
+            headerTintColor: 'white',
+            contentStyle: {backgroundColor: '#3f2f25'},
+          }}>
+          <Stack.Screen
+            name="MealsCategories"
+            component={CategoriesScreen}
+            options={{
+              title: 'All Categories',
+            }}
+          />
+          <Stack.Screen name="MealsOverview" component={MealsOverviewScreen} />
+          <Stack.Screen name="MealDetail" component={MealDetailScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
+
+====================================================================
+
+import {StatusBar} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import CategoriesScreen from './screens/CategoriesScreen';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import MealsOverviewScreen from './screens/MealsOverviewScreen';
+import MealDetailScreen from './screens/MealDetailScreen';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import FavoritesScreen from './screens/FavoritesScreen';
+
+const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
+
+function DrawerNavigator() {
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="Categories" component={CategoriesScreen} />
+      <Drawer.Screen name="Favorites" component={FavoritesScreen} />
+    </Drawer.Navigator>
+  );
+}
+
+const App = () => {
+  return (
+    <>
+      <StatusBar />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {backgroundColor: '#351401'},
+            headerTintColor: 'white',
+            contentStyle: {backgroundColor: '#3f2f25'},
+          }}>
+          <Stack.Screen
+            name="Drawer"
+            component={DrawerNavigator}
+            options={{
+              title: 'All Categories',
+              
+            }}
+          />
+          <Stack.Screen name="MealsOverview" component={MealsOverviewScreen} />
+          <Stack.Screen name="MealDetail" component={MealDetailScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
+  );
+};
+
+export default App;
+
+
+=====================================================================
+
+
+                          now badna na3mul header wahde
+
+                          kif ???
+
+npm start -- --reset-cache
+
+                          
+                          import {StatusBar} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import CategoriesScreen from './screens/CategoriesScreen';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import MealsOverviewScreen from './screens/MealsOverviewScreen';
+import MealDetailScreen from './screens/MealDetailScreen';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import FavoritesScreen from './screens/FavoritesScreen';
+
+const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
+
+function DrawerNavigator() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        headerStyle: {backgroundColor: '#351401'},
+        headerTintColor: 'white',
+        sceneContainerStyle: {backgroundColor: '#3f2f25'},
+      }}>
+      <Drawer.Screen
+        name="Categories"
+        component={CategoriesScreen}
+        options={{
+          title: 'All Categories',
+        }}
+      />
+      <Drawer.Screen name="Favorites" component={FavoritesScreen} />
+    </Drawer.Navigator>
+  );
+}
+
+const App = () => {
+  return (
+    <>
+      <StatusBar />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {backgroundColor: '#351401'},
+            headerTintColor: 'white',
+            contentStyle: {backgroundColor: '#3f2f25'},
+          }}>
+          <Stack.Screen
+            name="Drawer"
+            component={DrawerNavigator}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen name="MealsOverview" component={MealsOverviewScreen} />
+          <Stack.Screen
+            name="MealDetail"
+            component={MealDetailScreen}
+            options={{
+              title: 'About the Meal',
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
+  );
+};
+
+export default App;
+
+
+=========================================================================
